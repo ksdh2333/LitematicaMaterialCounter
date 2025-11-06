@@ -636,7 +636,6 @@ def write_to_csv(aggregated_counts: dict[tuple[str, frozenset, ItemType], int],
 
 def main():
     """主函数，用于选择文件输入输出并运行材料计数过程。"""
-<<<<<< main
     output_filepath = None
     print("请在新窗口选择文件")
     input_filepath = tkinter.filedialog.askopenfilename(title='打开投影文件',
