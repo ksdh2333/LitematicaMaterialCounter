@@ -365,14 +365,14 @@ def get_materials_from_schematic(schematic: litemapy.Schematic) -> list[Processe
                         item_id_to_add = ID_NORMALIZATION_MAP.get(bs_id, bs_id)
                         
                         # --- 路径 2: 门 (独立处理) ---
-                        if "door" in bs_id:
+                        if "_door" in bs_id:
                             # 只统计下半部分
                             if properties.get(SPECIAL_HANDLING_BLOCKS["door"]["property"]) == SPECIAL_HANDLING_BLOCKS["door"]["value"]:
                                 material_list.append(ProcessedItem(item_id=item_id_to_add, count=1, item_type=ItemType.BLOCK, nbt_dict={}))
                             continue # 无论如何都跳过，因为门已被处理 (要么计数，要么忽略上半部分)
                         
                         # --- 路径 3: 床 (独立处理) ---
-                        if "bed" in bs_id:
+                        if "_bed" in bs_id:
                             # 只统计床脚部分
                             if properties.get(SPECIAL_HANDLING_BLOCKS["bed"]["property"]) == SPECIAL_HANDLING_BLOCKS["bed"]["value"]:
                                 material_list.append(ProcessedItem(item_id=item_id_to_add, count=1, item_type=ItemType.BLOCK, nbt_dict={}))
