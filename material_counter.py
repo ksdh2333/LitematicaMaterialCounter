@@ -445,8 +445,13 @@ def aggregate_materials(processed_items: list[ProcessedItem]) -> tuple[dict[tupl
             print(f"[ERROR AGGREGATE] 创建NBT的frozenset时发生TypeError: {item.nbt_dict}. 物品ID: {item.item_id}. 错误: {te}")
             nbt_summary_key_items = frozenset(("_problematic_nbt_", str(item.nbt_dict)))
         
-        # 核心修复：将 item.item_type 添加到聚合键中
-        key = (item.item_id, nbt_summary_key_items, item.item_type)
+        # 合并逻辑：忽略BLOCK和ITEM类型差异，只合并相同ID和NBT的物品
+        if item.item_type == ItemType.ENTITY:
+            # 实体保持独立分类
+            key = (item.item_id, nbt_summary_key_items, ItemType.ENTITY)
+        else:
+            # 对于方块和物品，忽略类型差异，统一为ITEM类型进行合并
+            key = (item.item_id, nbt_summary_key_items, ItemType.ITEM)
         
         aggregated_counts[key] = aggregated_counts.get(key, 0) + item.count
         
