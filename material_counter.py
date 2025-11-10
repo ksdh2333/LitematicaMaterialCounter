@@ -365,14 +365,14 @@ def get_materials_from_schematic(schematic: litemapy.Schematic) -> list[Processe
                         item_id_to_add = ID_NORMALIZATION_MAP.get(bs_id, bs_id)
                         
                         # --- 路径 2: 门 (独立处理) ---
-                        if "door" in bs_id:
+                        if "_door" in bs_id:
                             # 只统计下半部分
                             if properties.get(SPECIAL_HANDLING_BLOCKS["door"]["property"]) == SPECIAL_HANDLING_BLOCKS["door"]["value"]:
                                 material_list.append(ProcessedItem(item_id=item_id_to_add, count=1, item_type=ItemType.BLOCK, nbt_dict={}))
                             continue # 无论如何都跳过，因为门已被处理 (要么计数，要么忽略上半部分)
                         
                         # --- 路径 3: 床 (独立处理) ---
-                        if "bed" in bs_id:
+                        if "_bed" in bs_id:
                             # 只统计床脚部分
                             if properties.get(SPECIAL_HANDLING_BLOCKS["bed"]["property"]) == SPECIAL_HANDLING_BLOCKS["bed"]["value"]:
                                 material_list.append(ProcessedItem(item_id=item_id_to_add, count=1, item_type=ItemType.BLOCK, nbt_dict={}))
@@ -445,8 +445,13 @@ def aggregate_materials(processed_items: list[ProcessedItem]) -> tuple[dict[tupl
             print(f"[ERROR AGGREGATE] 创建NBT的frozenset时发生TypeError: {item.nbt_dict}. 物品ID: {item.item_id}. 错误: {te}")
             nbt_summary_key_items = frozenset(("_problematic_nbt_", str(item.nbt_dict)))
         
-        # 核心修复：将 item.item_type 添加到聚合键中
-        key = (item.item_id, nbt_summary_key_items, item.item_type)
+        # 合并逻辑：忽略BLOCK和ITEM类型差异，只合并相同ID和NBT的物品
+        if item.item_type == ItemType.ENTITY:
+            # 实体保持独立分类
+            key = (item.item_id, nbt_summary_key_items, ItemType.ENTITY)
+        else:
+            # 对于方块和物品，忽略类型差异，统一为ITEM类型进行合并
+            key = (item.item_id, nbt_summary_key_items, ItemType.ITEM)
         
         aggregated_counts[key] = aggregated_counts.get(key, 0) + item.count
         
@@ -636,7 +641,6 @@ def write_to_csv(aggregated_counts: dict[tuple[str, frozenset, ItemType], int],
 
 def main():
     """主函数，用于选择文件输入输出并运行材料计数过程。"""
-<<<<<< main
     output_filepath = None
     print("请在新窗口选择文件")
     input_filepath = tkinter.filedialog.askopenfilename(title='打开投影文件',
